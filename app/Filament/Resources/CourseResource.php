@@ -17,7 +17,9 @@ class CourseResource extends Resource
 {
     protected static ?string $model = Course::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'hugeicons-course';
+
+    protected static ?string $slug = 'kurse';
 
     public static function form(Form $form): Form
     {
@@ -82,5 +84,18 @@ class CourseResource extends Resource
             'create' => Pages\CreateCourse::route('/create'),
             'edit' => Pages\EditCourse::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Kurse';
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Kurs';
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'Kurse';
     }
 }
