@@ -17,7 +17,9 @@ class LocationResource extends Resource
 {
     protected static ?string $model = Location::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-map-pin';
+
+    protected static ?string $slug = 'kursorte';
 
     public static function form(Form $form): Form
     {
@@ -87,5 +89,20 @@ class LocationResource extends Resource
             'create' => Pages\CreateLocation::route('/create'),
             'edit' => Pages\EditLocation::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Kursorte';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Kursort';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Kursorte';
     }
 }

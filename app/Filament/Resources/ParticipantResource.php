@@ -17,7 +17,9 @@ class ParticipantResource extends Resource
 {
     protected static ?string $model = Participant::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'hugeicons-students';
+
+    protected static ?string $slug = 'teilnehmer';
 
     public static function form(Form $form): Form
     {
@@ -116,5 +118,20 @@ class ParticipantResource extends Resource
             'create' => Pages\CreateParticipant::route('/create'),
             'edit' => Pages\EditParticipant::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Teilnehmer';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Teilnehmer';
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Teilnehmer';
     }
 }

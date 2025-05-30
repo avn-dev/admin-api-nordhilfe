@@ -18,7 +18,9 @@ class TrainingSessionResource extends Resource
 {
     protected static ?string $model = TrainingSession::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'tabler-certificate';
+
+    protected static ?string $slug = 'schulungen';
 
     public static function form(Form $form): Form
     {
@@ -139,5 +141,18 @@ class TrainingSessionResource extends Resource
             'create' => Pages\CreateTrainingSession::route('/create'),
             'edit' => Pages\EditTrainingSession::route('/{record}/edit'),
         ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Schulungen';
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Schulung';
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'Schulungen';
     }
 }
