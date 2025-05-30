@@ -12,6 +12,7 @@ use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
+use Filament\Forms;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,5 +47,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureCommands();
         $this->configureModels();
         $this->translatableComponents();
+
+        Forms\Components\TextInput::configureUsing(function (Forms\Components\TextInput $textInput): void {
+            $textInput->dehydrateStateUsing(function (?string $state): ?string {
+                return is_string($state) ? trim($state) : $state;
+            });
+        });
     }
 }
