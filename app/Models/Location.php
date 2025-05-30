@@ -15,6 +15,8 @@ class Location extends Model
         'postal_code'
     ];
 
+    protected $appends = ['full_address', 'full_address_with_name'];
+
     public function getFullAddressAttribute()
     {
         $extra = $this->address_extra ? "{$this->address_extra}, " : '';
