@@ -41,4 +41,9 @@ class Participant extends Model
     {
         return $this->trainingSession ? $this->trainingSession->course : null;
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

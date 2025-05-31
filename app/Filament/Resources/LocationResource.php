@@ -55,10 +55,10 @@ class LocationResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('full_address')
-                    ->label('Address')
+                    ->label('Anschrift')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('address_extra')
+                Tables\Columns\TextColumn::make('Zusatz')
                     ->searchable()
                     ->sortable()
             ])

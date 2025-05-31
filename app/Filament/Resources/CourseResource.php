@@ -45,15 +45,15 @@ class CourseResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Course Name')
+                    ->label('Titel')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('description')
-                    ->label('Description')
+                    ->label('Beschreibung')
                     ->searchable()
                     ->limit(50),
                 Tables\Columns\TextColumn::make('base_price')
-                    ->label('Base Price')
+                    ->label('Preis')
                     ->money('EUR', true)
                     ->sortable()
             ])
