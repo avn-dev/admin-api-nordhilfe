@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Models\TrainingSession;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -38,7 +39,7 @@ class ParticipantResource extends Resource
                     ->native(false),
                 Forms\Components\Select::make('training_session_id')
                     ->relationship('trainingSession', 'id')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->description)
+                    ->getOptionLabelFromRecordUsing(fn($record) => $record->description)
                     ->required()
                     ->label('Training Session')
                     ->native(false)
@@ -73,7 +74,8 @@ class ParticipantResource extends Resource
                     ->label('Schulung')
                     ->searchable()
                     ->sortable()
-                    ->url(fn ($record) =>
+                    ->url(
+                        fn($record) =>
                         $record->trainingSession && $record->trainingSession->course
                             ? TrainingSessionResource::getUrl('edit', ['record' => $record->trainingSession->id])
                             : null
@@ -91,7 +93,18 @@ class ParticipantResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('training_session_id')
+                    ->label('Schulung')
+                    ->options(
+                        \App\Models\TrainingSession::with('course')
+                            ->get()
+                            ->mapWithKeys(fn($session) => [
+                                $session->id => $session->short_description
+                            ])
+                            ->toArray()
+                    )
+                    ->searchable()
+                    ->native(false),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

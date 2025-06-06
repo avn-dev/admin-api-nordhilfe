@@ -9,10 +9,12 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Participant;
+use Illuminate\Database\Eloquent\Model;
 
 class PaymentResource extends Resource
 {
@@ -20,6 +22,7 @@ class PaymentResource extends Resource
 
   protected static ?string $navigationIcon = 'heroicon-o-credit-card';
   protected static ?string $slug = 'zahlungen';
+
 
   public static function form(Form $form): Form
   {
@@ -91,6 +94,12 @@ class PaymentResource extends Resource
         Tables\Columns\TextColumn::make('status')
           ->label('Status')
           ->searchable()
+          ->badge()
+          ->color(fn(string $state): string => match ($state) {
+            'unpaid' => 'danger',
+            'refunded' => 'warning',
+            'paid' => 'success',
+          })
           ->sortable(),
         Tables\Columns\TextColumn::make('amount')
           ->label('Betrag')
@@ -104,10 +113,29 @@ class PaymentResource extends Resource
           ->searchable()
       ])
       ->filters([
-        //
+        Tables\Filters\SelectFilter::make('status')
+          ->label('Status')
+          ->options([
+            'unpaid' => 'Unbezahlt',
+            'paid' => 'Bezahlt',
+            'refunded' => 'Erstattet',
+          ])
+          ->native(false),
+        Tables\Filters\SelectFilter::make('method')
+          ->label('Zahlungsmethode')
+          ->options([
+            'paypal' => 'PayPal',
+            'cash' => 'Barzahlung',
+          ])
+          ->native(false),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
+        ActionGroup::make([
+          Tables\Actions\CreateAction::make()
+            ->icon('heroicon-o-plus'),
+          Tables\Actions\EditAction::make()
+            ->icon('heroicon-o-pencil-square'),
+        ]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
