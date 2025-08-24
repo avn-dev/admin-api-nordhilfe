@@ -106,7 +106,7 @@ class BookingController extends Controller
 
         $participant->payments()->create([
             'method' => 'cash',
-            'status' => 'paid',
+            'status' => 'unpaid',
             'amount' => $amount,
             'currency' => 'EUR',
         ]);
