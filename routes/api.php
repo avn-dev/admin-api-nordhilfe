@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TrainingSessionController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\LocationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
