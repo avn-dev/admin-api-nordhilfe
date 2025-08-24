@@ -14,7 +14,9 @@ class Participant extends Model
         'birth_date',
         'email',
         'phone',
-        'training_session_id'
+        'training_session_id',
+        'visionTest',
+        'passportPhotos'
     ];
 
     public function getFullNameAttribute()
