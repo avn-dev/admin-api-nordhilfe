@@ -44,9 +44,9 @@ class ParticipantResource extends Resource
                     ->label('Training Session')
                     ->native(false)
                     ->hiddenOn(TrainingSessionResource\RelationManagers\ParticipantsRelationManager::class),
-                Forms\Components\Toggle::make('visionTest')
+                Forms\Components\Toggle::make('vision_test')
                     ->label('Sehtest gebucht'),
-                Forms\Components\Toggle::make('passportPhotos')
+                Forms\Components\Toggle::make('passport_photos')
                     ->label('Passfotos gebucht'),
                 Forms\Components\TextInput::make('email')
                     ->email()
@@ -74,14 +74,14 @@ class ParticipantResource extends Resource
                     ->date('d.m.Y')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\IconColumn::make('visionTest')
+                Tables\Columns\IconColumn::make('vision_test')
                     ->label('Sehtest')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('info')
                     ->falseColor('warning'),
-                Tables\Columns\IconColumn::make('passportPhotos')
+                Tables\Columns\IconColumn::make('passport_photos')
                     ->label('Passfotos')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
