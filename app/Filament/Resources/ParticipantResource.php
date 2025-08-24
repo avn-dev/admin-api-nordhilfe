@@ -72,10 +72,16 @@ class ParticipantResource extends Resource
                     ->searchable(),
                 Tables\Columns\IconColumn::make('visionTest')
                     ->label('Sehtest')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
                 Tables\Columns\IconColumn::make('passportPhotos')
                     ->label('Passfotos')
-                    ->boolean(),
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
                 Tables\Columns\TextColumn::make('trainingSession.short_description')
                     ->label('Schulung')
                     ->searchable()
