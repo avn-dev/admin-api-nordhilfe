@@ -70,10 +70,10 @@ class ParticipantResource extends Resource
                     ->date('d.m.Y')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('visionTest')
+                Tables\Columns\IconColumn::make('visionTest')
                     ->label('Sehtest')
                     ->boolean(),
-                Tables\Columns\TextColumn::make('passportPhotos')
+                Tables\Columns\IconColumn::make('passportPhotos')
                     ->label('Passfotos')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('trainingSession.short_description')
