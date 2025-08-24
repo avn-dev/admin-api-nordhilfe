@@ -44,6 +44,10 @@ class ParticipantResource extends Resource
                     ->label('Training Session')
                     ->native(false)
                     ->hiddenOn(TrainingSessionResource\RelationManagers\ParticipantsRelationManager::class),
+                Forms\Components\Toggle::make('visionTest')
+                    ->label('Sehtest gebucht'),
+                Forms\Components\Toggle::make('passportPhotos')
+                    ->label('Passfotos gebucht'),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->maxLength(255),
