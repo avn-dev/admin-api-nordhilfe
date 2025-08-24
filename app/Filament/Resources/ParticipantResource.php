@@ -75,13 +75,15 @@ class ParticipantResource extends Resource
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
-                    ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
+                    ->trueColor('info')
+                    ->falseColor('warning'),
                 Tables\Columns\IconColumn::make('passportPhotos')
                     ->label('Passfotos')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
-                    ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
+                    ->trueColor('info')
+                    ->falseColor('warning'),
                 Tables\Columns\TextColumn::make('trainingSession.short_description')
                     ->label('Schulung')
                     ->searchable()
