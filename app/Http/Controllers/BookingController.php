@@ -12,6 +12,13 @@ use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
+    private function getPaypalBaseUrl()
+    {
+        return config('services.paypal.mode') === 'sandbox' 
+            ? 'https://api-m.sandbox.paypal.com'
+            : 'https://api-m.paypal.com';
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -67,14 +74,16 @@ class BookingController extends Controller
 
             $returnUrl = $validated['returnUrl'] . '?payment=success&token=' . $token;
 
+            $paypalBaseUrl = $this->getPaypalBaseUrl();
+
             $accessToken = Http::withBasicAuth(
                 config('services.paypal.client_id'),
                 config('services.paypal.secret')
-            )->asForm()->post('https://api-m.sandbox.paypal.com/v1/oauth2/token', [
+            )->asForm()->post($paypalBaseUrl . '/v1/oauth2/token', [
                 'grant_type' => 'client_credentials',
             ])->json()['access_token'];
 
-            $order = Http::withToken($accessToken)->post('https://api-m.sandbox.paypal.com/v2/checkout/orders', [
+            $order = Http::withToken($accessToken)->post($paypalBaseUrl . '/v2/checkout/orders', [
                 'intent' => 'CAPTURE',
                 'purchase_units' => [[
                     'amount' => ['currency_code' => 'EUR', 'value' => $amount],
