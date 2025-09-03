@@ -126,15 +126,32 @@ class BookingController extends Controller
     public function paypalComplete(Request $request)
     {
         $tokenString = $request->input('token');
-        $paypalOrderId = $request->input('PayerID'); // PayPal sendet PayerID bei erfolgreicher Genehmigung
+        $orderID = $request->input('orderID'); // PayPal-Auftrags-ID
+        $payerID = $request->input('PayerID'); // PayPal-Payer-ID
+
+        // Logging für Debugging
+        Log::info('PayPal Complete aufgerufen', [
+            'token' => $tokenString,
+            'orderID' => $orderID,
+            'payerID' => $payerID,
+            'request' => $request->all()
+        ]);
 
         // Token validieren
         $token = PaypalToken::where('token', $tokenString)->first();
         if (!$token) {
+            Log::error('Ungültiger Token', ['token' => $tokenString]);
             return response()->json(['message' => 'Ungültiger oder fehlender Token.'], 400);
         }
         if ($token->used) {
+            Log::error('Token bereits verwendet', ['token' => $tokenString]);
             return response()->json(['message' => 'Token wurde bereits verwendet.'], 409);
+        }
+
+        // PayPal-Order-ID und Payer-ID prüfen
+        if (!$orderID || !$payerID) {
+            Log::error('Fehlende PayPal-Parameter', ['orderID' => $orderID, 'payerID' => $payerID]);
+            return response()->json(['message' => 'Fehlende PayPal-Parameter (orderID oder PayerID).'], 400);
         }
 
         $data = $token->payload;
@@ -166,7 +183,7 @@ class BookingController extends Controller
 
         // Capture-Aufruf
         $captureResponse = Http::withToken($accessToken)
-            ->post($paypalBaseUrl . '/v2/checkout/orders/' . $request->input('orderID') . '/capture');
+            ->post($paypalBaseUrl . '/v2/checkout/orders/' . $orderID . '/capture');
 
         if ($captureResponse->failed() || $captureResponse->json()['status'] !== 'COMPLETED') {
             Log::error('PayPal Capture fehlgeschlagen', ['response' => $captureResponse->json()]);
@@ -190,7 +207,8 @@ class BookingController extends Controller
             'status' => 'paid',
             'amount' => $amount,
             'currency' => 'EUR',
-            'paypal_order_id' => $request->input('orderID'), // Speichere die PayPal-Order-ID
+            'paypal_order_id' => $orderID,
+            'paypal_transaction_id' => $captureResponse->json()['purchase_units'][0]['payments']['captures'][0]['id'],
         ]);
 
         $token->used = true;
