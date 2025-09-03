@@ -148,16 +148,62 @@ class BookingController extends Controller
 
     public function paypalComplete(Request $request)
     {
-        $tokenString = $request->input('token');
-        $paypalToken = $request->input('PayerID'); // PayPal fügt dies automatisch hinzu
+        // Debugging: Logge alle Parameter
+        Log::info('PayPal completion request', [
+            'all_params' => $request->all(),
+            'query_params' => $request->query(),
+            'url' => $request->fullUrl()
+        ]);
+
+        // PayPal sendet verschiedene Parameter je nach Flow
+        $paypalOrderId = $request->input('token'); // PayPal Order ID (nicht unser Token!)
+        $payerId = $request->input('PayerID');
+        $customToken = $request->input('token'); // Unser Custom Token aus der URL
         
-        $token = PaypalToken::where('token', $tokenString)->first();
+        // Extrahiere unseren Custom Token aus der URL
+        $parsedUrl = parse_url($request->fullUrl());
+        parse_str($parsedUrl['query'] ?? '', $queryParams);
+        
+        // Suche nach unserem Token in den Query-Parametern
+        $customToken = null;
+        if (isset($queryParams['token']) && strpos($queryParams['token'], '-') !== false) {
+            // UUID Format erkennen
+            if (preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/', $queryParams['token'])) {
+                $customToken = $queryParams['token'];
+            }
+        }
+
+        // Falls kein Custom Token gefunden, versuche es aus der ursprünglichen return_url zu extrahieren
+        if (!$customToken) {
+            // Suche in allen Query-Parametern nach einem UUID-Pattern
+            foreach ($queryParams as $key => $value) {
+                if (preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/', $value)) {
+                    $customToken = $value;
+                    break;
+                }
+            }
+        }
+
+        Log::info('Extracted tokens', [
+            'paypal_order_id' => $paypalOrderId,
+            'payer_id' => $payerId,
+            'custom_token' => $customToken
+        ]);
+
+        if (!$customToken) {
+            Log::error('No custom token found in PayPal return');
+            return response()->json(['message' => 'Ungültiger oder fehlender Token.'], 400);
+        }
+
+        $token = PaypalToken::where('token', $customToken)->first();
 
         if (!$token) {
+            Log::error('Custom token not found in database', ['token' => $customToken]);
             return response()->json(['message' => 'Ungültiger oder fehlender Token.'], 400);
         }
 
         if ($token->used) {
+            Log::warning('Token already used', ['token' => $customToken]);
             return response()->json(['message' => 'Token wurde bereits verwendet.'], 409);
         }
 
@@ -184,31 +230,54 @@ class BookingController extends Controller
             $accessToken = $this->getPaypalAccessToken();
             $paypalBaseUrl = $this->getPaypalBaseUrl();
 
+            // Verwende die PayPal Order ID (token Parameter) für die API-Calls
+            $paypalOrderId = $request->input('token');
+            
+            Log::info('Attempting to capture PayPal order', ['order_id' => $paypalOrderId]);
+
             // Hole die Bestelldetails von PayPal
             $orderDetails = Http::withToken($accessToken)
-                ->get($paypalBaseUrl . '/v2/checkout/orders/' . $request->input('token'));
+                ->get($paypalBaseUrl . '/v2/checkout/orders/' . $paypalOrderId);
 
             if (!$orderDetails->successful()) {
-                Log::error('Failed to get PayPal order details', ['token' => $request->input('token')]);
+                Log::error('Failed to get PayPal order details', [
+                    'order_id' => $paypalOrderId,
+                    'response' => $orderDetails->json(),
+                    'status' => $orderDetails->status()
+                ]);
                 throw new \Exception('Failed to get PayPal order details');
             }
 
             $orderData = $orderDetails->json();
             
+            Log::info('PayPal order details retrieved', [
+                'order_id' => $orderData['id'],
+                'status' => $orderData['status']
+            ]);
+            
             // Prüfe ob Bestellung bereits erfasst wurde
             if ($orderData['status'] === 'COMPLETED') {
                 Log::info('PayPal order already completed', ['order_id' => $orderData['id']]);
-            } else {
+            } else if ($orderData['status'] === 'APPROVED') {
                 // Erfasse die Zahlung
                 $captureResponse = Http::withToken($accessToken)
-                    ->post($paypalBaseUrl . '/v2/checkout/orders/' . $request->input('token') . '/capture');
+                    ->post($paypalBaseUrl . '/v2/checkout/orders/' . $paypalOrderId . '/capture');
 
                 if (!$captureResponse->successful()) {
-                    Log::error('PayPal capture failed', ['response' => $captureResponse->json()]);
+                    Log::error('PayPal capture failed', [
+                        'order_id' => $paypalOrderId,
+                        'response' => $captureResponse->json(),
+                        'status' => $captureResponse->status()
+                    ]);
                     throw new \Exception('PayPal capture failed');
                 }
 
                 $captureData = $captureResponse->json();
+                
+                Log::info('PayPal capture response', [
+                    'order_id' => $captureData['id'],
+                    'status' => $captureData['status']
+                ]);
                 
                 // Prüfe ob Zahlung erfolgreich war
                 if ($captureData['status'] !== 'COMPLETED') {
@@ -217,6 +286,12 @@ class BookingController extends Controller
                 }
 
                 Log::info('PayPal payment captured successfully', ['order_id' => $captureData['id']]);
+            } else {
+                Log::error('PayPal order in unexpected status', [
+                    'order_id' => $orderData['id'],
+                    'status' => $orderData['status']
+                ]);
+                throw new \Exception('PayPal order not approved');
             }
 
             // Erstelle Teilnehmer nur wenn Zahlung erfolgreich
@@ -242,10 +317,20 @@ class BookingController extends Controller
             $token->used = true;
             $token->save();
 
+            Log::info('Participant created successfully', [
+                'participant_id' => $participant->id,
+                'paypal_order_id' => $orderData['id']
+            ]);
+
             return response()->json(['message' => 'Teilnehmer gespeichert']);
 
         } catch (\Exception $e) {
-            Log::error('PayPal completion error: ' . $e->getMessage());
+            Log::error('PayPal completion error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'custom_token' => $customToken,
+                'paypal_order_id' => $paypalOrderId
+            ]);
             return response()->json(['message' => 'PayPal-Zahlung konnte nicht abgeschlossen werden.'], 500);
         }
     }
