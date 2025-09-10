@@ -155,12 +155,19 @@ class BookingController extends Controller
             'passport_photos'    => $passportPhotos,
         ]);
 
-        $participant->payments()->create([
+        $payment = $participant->payments()->create([
             'method'   => 'cash',
             'status'   => 'unpaid',
             'amount'   => $amount,
             'currency' => 'EUR',
         ]);
+
+        dispatch(new \App\Jobs\SendBookingConfirmation($participant, [
+            'payment_id' => $payment->id,
+            'status'     => $payment->status,
+            'method'     => 'Bar vor Ort',
+            'amount'     => (float)$payment->amount,
+        ]));
 
         return response()->json(['message' => 'Anmeldung erfolgreich']);
     }
@@ -272,7 +279,7 @@ class BookingController extends Controller
             'passport_photos'     => $passportPhotos,
         ]);
 
-        $participant->payments()->create([
+        $payment = $participant->payments()->create([
             'method'      => 'paypal',
             'status'      => 'paid',
             'amount'      => $paidAmount,
@@ -280,6 +287,17 @@ class BookingController extends Controller
             'external_id' => $captureId ?: $orderId,
             'meta'        => $capture ?: $orderInfo, // komplette Antwort für spätere Nachverfolgung
         ]);
+
+        $orderNumber = data_get($orderInfo, 'purchase_units.0.invoice_id')
+            ?? ('BK-' . now()->format('Ymd') . '-' . substr($state, 0, 8));
+
+        dispatch(new \App\Jobs\SendBookingConfirmation($participant, [
+            'payment_id'   => $payment->id,
+            'status'       => 'paid',
+            'method'       => 'PayPal',
+            'amount'       => (float)$paidAmount,
+            'order_number' => $orderNumber,
+        ]));
 
         $token->used = true;
         $token->save();
