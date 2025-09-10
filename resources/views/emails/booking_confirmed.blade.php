@@ -1,9 +1,17 @@
 {{-- resources/views/emails/booking_confirmed.blade.php --}}
 @php
-    // Preheader unsichtbar:
+    // Preheader mit Datum, Uhrzeit und Ort dynamisch
+    $preheader = sprintf(
+        '%s, %s Uhr – %s, %s',
+        $ts->getFormattedSessionDate(),
+        $ts->getFormattedStartTime(),
+        $loc->name,
+        $loc->full_address
+    );
 @endphp
-<span style="display:none!important;visibility:hidden;mso-hide:all;opacity:0;color:transparent;max-height:0;max-width:0;overflow:hidden;">
-    Datum, Uhrzeit, Ort & Route.
+<span style="display:none!important;visibility:hidden;mso-hide:all;opacity:0;color:transparent;
+             max-height:0;max-width:0;overflow:hidden;">
+    {{ $preheader }}
 </span>
 
 @component('mail::message')
