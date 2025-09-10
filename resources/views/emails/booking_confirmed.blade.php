@@ -18,8 +18,11 @@ deine Buchung ist bestätigt. Hier sind die wichtigsten Infos:
 - **Datum:** {{ $ts->getFormattedSessionDate() }}  
 - **Zeit:** {{ $ts->getFormattedStartTime() }}–{{ $ts->getFormattedEndTime() }} Uhr @if(!empty($d['duration_minutes'])) (Dauer {{ $d['duration_minutes'] }} Min) @endif  
 - **Ort:** {{ $loc->name }}, {{ $loc->full_address }}  
-- **Route öffnen:** <a href="{{ $d['map_url'] }}">{{ $d['map_url'] }}</a>  
 - **Bestellnummer:** {{ $d['order_number'] }}
+
+@component('mail::button', ['url' => $d['map_url']])
+Route in Google Maps öffnen
+@endcomponent
 
 **ZAHLUNG**  
 Status: {{ $d['payment_status'] }} • Methode: {{ $d['payment_method'] }} • Betrag: {{ number_format($d['total_price'], 2, ',', '.') }} €
