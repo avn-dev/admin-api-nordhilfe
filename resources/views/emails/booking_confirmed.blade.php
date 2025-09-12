@@ -35,10 +35,10 @@ Route in Google Maps öffnen
 **ZAHLUNG**  
 Status: {{ $d['payment_status'] }} • Methode: {{ $d['payment_method'] }} • Betrag: {{ number_format($d['total_price'], 2, ',', '.') }} €
 
-**Kurz & wichtig:**  
+**KURZ & WICHTIG:**  
 Falls du **Sehtest** und/oder **Passbilder** gebucht hast, komm bitte **30 Minuten früher**, damit wir alles in Ruhe erledigen und pünktlich starten können.
 
-**Deine Teilnahme ist garantiert:**  
+**DEINE TEILNAHME IST GARANTIERT:**  
 Fällt der Kurs wider Erwarten aus, buchen wir dich automatisch & kostenfrei auf den nächsten Termin – ohne dass du dich neu anmelden musst.
 
 **WAS DU MITBRINGEN SOLLTEST**
