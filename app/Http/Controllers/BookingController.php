@@ -41,10 +41,11 @@ class BookingController extends Controller
     private function computeAmount(Course $course, bool $visionTest, bool $passportPhotos): string
     {
         $amount = $course->base_price;
+        $discountCourse = Course::find(4)->get();
         if ($visionTest) $amount += 9;
         if ($passportPhotos) $amount += 9;
         if ($visionTest && $passportPhotos && $course->id == 1) {
-            $amount = 65; // Rabattpreis für Erste-Hilfe-Kurs + Sehtest + Passfotos
+            $amount = $discountCourse->discounted ? $discountCourse->discount_price : $discountCourse->base_price; // Rabattpreis für Erste-Hilfe-Kurs + Sehtest + Passfotos
         }
         return number_format($amount, 2, '.', '');
     }
