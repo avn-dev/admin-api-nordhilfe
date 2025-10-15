@@ -47,6 +47,7 @@ class BookingController extends Controller
         if ($visionTest && $passportPhotos && $course->id == 1) {
             $amount = $discountCourse->discounted ? $discountCourse->discount_price : $discountCourse->base_price; // Rabattpreis für Erste-Hilfe-Kurs + Sehtest + Passfotos
         }
+        error_log("amount: {$amount}");
         return number_format($amount, 2, '.', '');
     }
 
