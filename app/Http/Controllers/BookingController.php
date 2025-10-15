@@ -41,7 +41,7 @@ class BookingController extends Controller
     private function computeAmount(Course $course, bool $visionTest, bool $passportPhotos): string
     {
         $amount = $course->base_price;
-        $discountCourse = Course::find(4)->get();
+        $discountCourse = Course::find(4);
         if ($visionTest) $amount += 9;
         if ($passportPhotos) $amount += 9;
         if ($visionTest && $passportPhotos && $course->id == 1) {
