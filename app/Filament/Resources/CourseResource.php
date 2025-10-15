@@ -37,6 +37,13 @@ class CourseResource extends Resource
                     ->minValue(0)
                     ->maxValue(1000000)
                     ->default(0),
+                Forms\Components\Toggle::make('discounted'),
+                Forms\Components\TextInput::make('discount_price')
+                    ->required()
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(1000000)
+                    ->default(0),
             ]);
     }
 
@@ -54,6 +61,13 @@ class CourseResource extends Resource
                     ->limit(50),
                 Tables\Columns\TextColumn::make('base_price')
                     ->label('Preis')
+                    ->money('EUR', true)
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('discounted')
+                    ->boolean()
+                    ->label('Angebot?'),
+                Tables\Columns\TextColumn::make('discount_price')
+                    ->label('Angebotspreis')
                     ->money('EUR', true)
                     ->sortable()
             ])

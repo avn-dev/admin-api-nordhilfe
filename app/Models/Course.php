@@ -9,7 +9,9 @@ class Course extends Model
     protected $fillable = [
         'name',
         'description',
-        'base_price'
+        'base_price',
+        'discounted',
+        'discount_price'
     ];
 
     public function trainingSessions()
