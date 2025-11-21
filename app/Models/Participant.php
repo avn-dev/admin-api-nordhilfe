@@ -11,6 +11,10 @@ class Participant extends Model
         'attended',
         'first_name',
         'last_name',
+        'address',
+        'house_number',
+        'city',
+        'post_code',
         'birth_date',
         'email',
         'phone',
@@ -47,5 +51,19 @@ class Participant extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function getFullAddressAttribute(): string
+    {
+        $street = trim(
+            $this->house_number
+                ? "{$this->address} {$this->house_number}"
+                : $this->address
+        );
+
+        // PLZ + Stadt
+        $cityLine = trim("{$this->post_code} {$this->city}");
+
+        return "{$street}, {$cityLine}";
     }
 }

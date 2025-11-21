@@ -32,6 +32,35 @@ class ParticipantResource extends Resource
                 Forms\Components\TextInput::make('last_name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Section::make('Adresse')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('address')
+                                    ->label('Straße')
+                                    ->required()
+                                    ->maxLength(255),
+
+                                Forms\Components\TextInput::make('house_number')
+                                    ->label('Hausnummer (& Zusatz)')
+                                    ->required()
+                                    ->maxLength(50),
+                            ]),
+
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('post_code')
+                                    ->label('PLZ')
+                                    ->required()
+                                    ->maxLength(5),
+
+                                Forms\Components\TextInput::make('city')
+                                    ->label('Stadt')
+                                    ->required()
+                                    ->maxLength(255),
+                            ]),
+                    ])
+                    ->columns(1),
                 Forms\Components\DatePicker::make('birth_date')
                     ->required()
                     ->maxDate(now())
@@ -67,6 +96,10 @@ class ParticipantResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('last_name')
                     ->label('Nachname')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('full_address')
+                    ->label('Anschrift')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('birth_date')

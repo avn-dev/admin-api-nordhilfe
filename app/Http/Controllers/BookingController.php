@@ -56,6 +56,10 @@ class BookingController extends Controller
         $validated = $request->validate([
             'firstName'     => 'required',
             'lastName'      => 'required',
+            'address'       => 'required',
+            'houseNumber'   => 'nullable',
+            'city'          => 'required',
+            'postCode'      => 'required',
             'email'         => 'required|email',
             'birthDate'     => 'required|date',
             'phone'         => 'nullable|string',
@@ -149,6 +153,10 @@ class BookingController extends Controller
         $participant = Participant::create([
             'first_name'         => $validated['firstName'],
             'last_name'          => $validated['lastName'],
+            'address'            => $validated('address'),
+            'house_number'       => $validated('houseNumber'),
+            'city'               => $validated('city'),
+            'post_code'          => $validated('postCode'),
             'email'              => $validated['email'],
             'birth_date'         => $validated['birthDate'],
             'phone'              => $validated['phone'],
@@ -273,6 +281,10 @@ class BookingController extends Controller
         $participant = Participant::create([
             'first_name'          => $payload['firstName'],
             'last_name'           => $payload['lastName'],
+            'address'             => $payload('address'),
+            'house_number'        => $payload('houseNumber'),
+            'city'                => $payload('city'),
+            'post_code'           => $payload('postCode'),
             'email'               => $payload['email'],
             'birth_date'          => $payload['birthDate'],
             'phone'               => $payload['phone'] ?? null,
