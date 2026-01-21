@@ -11,6 +11,8 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Filament\Forms;
 
@@ -42,10 +44,23 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict(! app()->isProduction());
     }
 
+    private function configureValidationRules(): void
+    {
+        Validator::extend('file_put_contents', function (string $attribute, mixed $value, array $parameters, $validator): bool {
+            Log::warning('Unexpected validation rule encountered.', [
+                'rule' => 'file_put_contents',
+                'attribute' => $attribute,
+            ]);
+
+            return false;
+        });
+    }
+
     public function boot(): void
     {
         $this->configureCommands();
         $this->configureModels();
+        $this->configureValidationRules();
         $this->translatableComponents();
 
         Forms\Components\TextInput::configureUsing(function (Forms\Components\TextInput $textInput): void {
